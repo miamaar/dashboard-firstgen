@@ -7,7 +7,7 @@ from config import *
 from preprocessing import load_data, calculate_belonging_scores
 import plotly.graph_objects as go
 import plotly.express as px
-from charts import (chart_fgs_bar, chart_belonging_radar, chart_belonging_bars)
+from charts import (chart_fgs_bar, chart_belonging_bars)
 
 st.set_page_config(
     page_title="FGS Dashboard | HSLU Informatik",
@@ -48,6 +48,16 @@ div[data-testid="column"] {{
 div[data-testid="stHorizontalBlock"]:not(:first-of-type) {{
     background:{"transparent" if page == "home" else "#FFFFFF"} !important;
 }}
+/* Filter-Zeile: Column-Divs mit BaseWeb-Select erhalten sichtbares vertikales Padding */
+div[data-testid="stHorizontalBlock"]:not(:first-of-type)
+    div[data-testid="column"]:has(div[data-baseweb="select"]) {{
+    padding-top:20px !important;
+    padding-bottom:20px !important;
+}}
+/* Fallback ohne :has – Label über Selectbox bekommt mehr Luft nach oben */
+div[data-baseweb="select"] {{
+    margin-top:4px !important;
+}}
 div[data-testid="stMarkdown"],
 div[data-testid="stMarkdownContainer"],
 div[data-testid="stElementContainer"],
@@ -58,10 +68,24 @@ div[data-testid="stElementContainer"],
 /* ── NAVBAR: erster horizontaler Block ── */
 div[data-testid="stHorizontalBlock"]:first-of-type {{
     background:#fff !important;
-    padding:12px 60px !important;
+    padding:0 60px !important;
+    min-height:52px !important;
     box-shadow:0 1px 8px rgba(0,0,0,0.06) !important;
     position:sticky !important; top:0 !important; z-index:100 !important;
+    display:flex !important; align-items:center !important;
+}}
+/* Alle Column-, Block- und Element-Wrapper im Navbar auf null setzen */
+div[data-testid="stHorizontalBlock"]:first-of-type > div[data-testid="column"],
+div[data-testid="stHorizontalBlock"]:first-of-type div[data-testid="stVerticalBlock"],
+div[data-testid="stHorizontalBlock"]:first-of-type div[data-testid="stElementContainer"],
+div[data-testid="stHorizontalBlock"]:first-of-type div[data-testid="stMarkdown"],
+div[data-testid="stHorizontalBlock"]:first-of-type div[data-testid="stMarkdownContainer"],
+div[data-testid="stHorizontalBlock"]:first-of-type div[data-testid="stButton"] {{
+    padding:0 !important;
+    margin:0 !important;
+    display:flex !important;
     align-items:center !important;
+    line-height:1 !important;
 }}
 /* Alle Buttons im Navbar: Text-Link-Style */
 div[data-testid="stHorizontalBlock"]:first-of-type button {{
@@ -69,17 +93,27 @@ div[data-testid="stHorizontalBlock"]:first-of-type button {{
     box-shadow:none !important; border-radius:0 !important;
     color:#6B7280 !important; font-size:12px !important;
     font-weight:700 !important; text-transform:uppercase !important;
-    letter-spacing:1px !important; padding:6px 4px !important;
+    letter-spacing:1px !important; padding:0 4px !important;
     width:100% !important; min-height:0 !important; min-width:0 !important;
+    line-height:1 !important; position:relative !important;
 }}
 div[data-testid="stHorizontalBlock"]:first-of-type button:hover {{
     color:#1E2A44 !important; background:transparent !important;
     border:none !important;
 }}
-/* Aktiver Navbar-Button */
+/* Aktiver Navbar-Button: nur Farbe ändern, kein Layout */
 div[data-testid="stHorizontalBlock"]:first-of-type > div:nth-child({_active_nth}) button {{
     color:#00A896 !important;
-    border-bottom:2px solid #00A896 !important;
+}}
+/* Aktive Linie als ::after – ausserhalb des Layouts, kein Textversatz */
+div[data-testid="stHorizontalBlock"]:first-of-type > div:nth-child({_active_nth}) button::after {{
+    content:"" !important;
+    position:absolute !important;
+    bottom:-12px !important;
+    left:0 !important; right:0 !important;
+    height:2px !important;
+    background:#00A896 !important;
+    border-radius:1px !important;
 }}
 
 /* ── CTA BUTTON (alle anderen Buttons = grosser dunkler Button) ── */
@@ -129,15 +163,18 @@ div[data-testid="stHorizontalBlock"]:first-of-type > div:nth-child({_active_nth}
     max-width:640px; margin:0 auto; font-family:Inter,sans-serif;
 }}
 
-.research-wrap {{ background:#1E2A44; padding:96px 80px; text-align:center; }}
+.research-wrap {{
+    background:#1E2A44; padding:96px 80px;
+    display:flex; flex-direction:column; align-items:center; text-align:center;
+}}
 .res-label {{
     font-size:12px; font-weight:700; letter-spacing:2px;
     color:#00A896; text-transform:uppercase; margin-bottom:32px; font-family:Inter,sans-serif;
 }}
 .res-quote {{
     font-size:30px; font-style:italic; font-weight:700; color:#fff;
-    max-width:860px; margin:0 auto 48px auto; line-height:1.45; font-family:Inter,sans-serif;
-    text-align:center;
+    max-width:680px; margin:0 0 48px 0; line-height:1.45; font-family:Inter,sans-serif;
+    text-align:center !important;
 }}
 .res-tags {{ display:flex; flex-wrap:wrap; justify-content:center; gap:12px; max-width:800px; margin:0 auto; }}
 .res-tag {{
@@ -186,12 +223,14 @@ logo_col, spacer, c_home, c_dash, c_kont = st.columns(
 )
 with logo_col:
     st.markdown("""
-    <div style="display:flex;align-items:center;gap:10px;padding:4px 0;">
-      <span style="font-size:17px;font-weight:800;color:#1E2A44;font-family:Inter,sans-serif;">
-        FGS Dashboard
-      </span>
-      <span style="background:#1E2A44;color:#fff;padding:4px 10px;
-                   border-radius:5px;font-size:12px;font-weight:700;">HSLU</span>
+    <div style="display:flex;align-items:center;gap:0;line-height:1;">
+      <span style="font-size:12px;font-weight:700;color:#00A896;
+                   font-family:Inter,sans-serif;letter-spacing:1px;text-transform:uppercase;">FGS</span>
+      <span style="font-size:12px;font-weight:700;color:#1E2A44;
+                   font-family:Inter,sans-serif;letter-spacing:1px;text-transform:uppercase;">&nbsp;Dashboard</span>
+      <span style="font-size:11px;font-weight:500;color:#9CA3AF;font-family:Inter,sans-serif;
+                   letter-spacing:1.2px;text-transform:uppercase;
+                   margin-left:12px;padding-left:12px;border-left:1px solid #E5E7EB;">HSLU</span>
     </div>
     """, unsafe_allow_html=True)
 with c_home:
@@ -277,7 +316,7 @@ elif page == "dashboard":
       <div style="text-align:right;flex-shrink:0;padding-left:2rem;">
         <div style="font-size:12px;color:#9CA3AF;">Teilnehmende</div>
         <div style="font-size:28px;font-weight:700;color:#1E2A44;">{n_total} Antworten</div>
-        <div style="font-size:12px;color:#9CA3AF;">Datenstand 2025</div>
+        <div style="font-size:12px;color:#9CA3AF;">Datenstand 2026</div>
       </div>
     </div>""", unsafe_allow_html=True)
 
@@ -303,8 +342,8 @@ elif page == "dashboard":
     # FILTER
     st.markdown('<div style="padding:0.75rem 0;margin-bottom:1rem;">',
                 unsafe_allow_html=True)
-    st.markdown('<p style="font-size:11px;font-weight:700;color:#9CA3AF;'
-                'text-transform:uppercase;letter-spacing:0.5px;margin:0 0 8px 0;">Filter</p>',
+    st.markdown('<p style="font-size:13px;font-weight:700;color:#9CA3AF;'
+                'text-transform:uppercase;letter-spacing:1.5px;margin:0 0 10px 0;">Filter</p>',
                 unsafe_allow_html=True)
     f1, f2, f3, f4, f5, f6 = st.columns(6)
     with f1:
@@ -451,17 +490,21 @@ elif page == "dashboard":
         st.plotly_chart(chart_fgs_bar(df_raw), use_container_width=True)
     with a2:
         if COL_STUDIENGANG in df_raw.columns:
-            import plotly.express as px
             sg_f = (df_raw[df_raw[COL_FGS].str.lower() == "ja"][COL_STUDIENGANG]
                     .value_counts().reset_index())
             sg_f.columns = ["Studiengang", "Anzahl"]
             fig = px.bar(sg_f, x="Anzahl", y="Studiengang", orientation="h",
                          color_discrete_sequence=[COLORS["blue"]], text="Anzahl")
-            fig.update_traces(textposition="outside", textfont_size=11)
-            fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-                              margin=dict(t=0,b=0), height=200, showlegend=False, yaxis_title="")
-            fig.update_xaxes(gridcolor="#E5E7EB", dtick=5, showgrid=True)
-            fig.update_yaxes(showgrid=False)
+            fig.update_traces(textposition="outside", textfont_size=11, cliponaxis=False)
+            fig.update_layout(
+                paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                font=dict(family="Inter, sans-serif", size=11, color="#374151"),
+                height=200, showlegend=False, yaxis_title="",
+                margin=dict(t=0, b=10, l=10, r=80),
+            )
+            fig.update_xaxes(gridcolor="#E5E7EB", showgrid=True, showticklabels=False,
+                             zeroline=False)
+            fig.update_yaxes(showgrid=False, tickfont=dict(size=11), automargin=True)
             st.plotly_chart(fig, use_container_width=True)
     with a3:
         if COL_ARBEIT in df_fgs.columns and len(df_fgs) >= MIN_N:
@@ -482,12 +525,12 @@ elif page == "dashboard":
             ))
             fig.update_layout(
                 paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-                height=180, showlegend=False,
-                margin=dict(t=0, b=0, l=130, r=80),
-                xaxis=dict(range=[0, x_max_arb * 1.45],
-                           showticklabels=False, showgrid=False, zeroline=False),
-                yaxis=dict(showgrid=False, tickfont=dict(size=11), automargin=False),
                 font=dict(family="Inter, sans-serif", size=11, color="#374151"),
+                height=200, showlegend=False,
+                margin=dict(t=0, b=10, l=130, r=80),
+                xaxis=dict(range=[0, x_max_arb * 1.45], showticklabels=False,
+                           gridcolor="#E5E7EB", showgrid=True, zeroline=False),
+                yaxis=dict(showgrid=False, tickfont=dict(size=11), automargin=False),
             )
             st.plotly_chart(fig, use_container_width=True)
 
@@ -668,9 +711,12 @@ elif page == "dashboard":
 
     # C: KRITISCHE PHASEN
     st.markdown('<div class="section-title">Wann entstehen kritische Studienphasen?</div>', unsafe_allow_html=True)
-    st.markdown('<div class="card"><b>Wann war das Studium bisher besonders herausfordernd?</b></div>', unsafe_allow_html=True)
     if COL_HERAUSFORDERND in df.columns and len(df) >= MIN_N:
         import plotly.express as px
+        st.markdown(
+            '<div class="card" style="margin-bottom:0.5rem;">'
+            '<b>Wann war das Studium bisher besonders herausfordernd?</b></div>',
+            unsafe_allow_html=True)
         c1, c2 = st.columns([3, 1])
         rows = []
         if len(df_fgs) >= MIN_N:
@@ -812,81 +858,336 @@ elif page == "dashboard":
     _n_hilft_resp = int(df_fgs[COL_HILFT].dropna().pipe(
         lambda s: s[s.str.strip() != ""]).count()) if COL_HILFT in df_fgs.columns else 0
 
-    _gew_line  = (f"<b>Häufigster Unterstützungswunsch:</b> {_top_gew[0]} · n&thinsp;=&thinsp;{_top_gew[1]}"
-                  if _top_gew[0] else "Keine Daten für Unterstützungswünsche.")
-    _hilft_line = (f"<b>Am häufigsten genannte Ressource:</b> {_top_hilft[0]} · n&thinsp;=&thinsp;{_top_hilft[1]}"
-                   if _top_hilft[0] else "Keine Daten für hilfreiche Ressourcen.")
-    _interp = (
-        f"Die Antworten weisen auf einen erhöhten Bedarf im Bereich "
-        f"<i>{_top_gew[0]}</i> hin."
+    def _kpi_block(label, main_val, sub_val, main_color="#1E2A44"):
+        if main_val:
+            return (
+                f'<div style="display:flex;flex-direction:column;">'
+                f'<div style="font-size:0.72rem;font-weight:600;color:#6B7280;'
+                f'margin-bottom:6px;">{label}</div>'
+                f'<div style="font-size:0.95rem;font-weight:700;color:{main_color};'
+                f'line-height:1.35;margin-bottom:4px;">{main_val}</div>'
+                f'<div style="font-size:0.80rem;color:{COLORS["blue"]};">{sub_val}</div>'
+                f'</div>'
+            )
+        return (
+            f'<div style="display:flex;flex-direction:column;">'
+            f'<div style="font-size:0.72rem;font-weight:600;color:#6B7280;margin-bottom:6px;">'
+            f'{label}</div>'
+            f'<div style="font-size:0.82rem;color:#9CA3AF;font-style:italic;">Keine Daten verfügbar.</div>'
+            f'</div>'
+        )
+
+    _b1 = _kpi_block(
+        "Häufigster Unterstützungswunsch",
+        _top_gew[0],
+        f"n = {_top_gew[1]}" if _top_gew[0] else "",
+    )
+    _b2 = _kpi_block(
+        "Häufigste hilfreiche Ressource",
+        _top_hilft[0],
+        f"n = {_top_hilft[1]}" if _top_hilft[0] else "",
+    )
+    _b3 = (
+        f'<div style="display:flex;flex-direction:column;">'
+        f'<div style="font-size:0.72rem;font-weight:600;color:#6B7280;margin-bottom:6px;">'
+        f'Ausgewertete FGS-Antworten</div>'
+        f'<div style="font-size:0.88rem;color:#1E2A44;line-height:1.8;">'
+        f'Wünsche: <b>n = {_n_gew_resp}</b><br>'
+        f'Ressourcen: <b>n = {_n_hilft_resp}</b>'
+        f'</div>'
+        f'</div>'
+    )
+    _interp_line = (
+        f'<div style="margin-top:14px;padding-top:10px;border-top:1px solid #F3F4F6;'
+        f'font-size:0.78rem;color:#6B7280;">'
+        f'Hinweis: Besonders häufig genannt wurde ein Bedarf an '
+        f'<span style="font-weight:600;color:#374151;">{_top_gew[0]}</span>.'
+        f'</div>'
         if _top_gew[0] and _top_gew[1] >= MIN_N else ""
     )
 
     st.markdown(
-        f'<div style="background:#fff;border-radius:12px;padding:22px 24px 18px;'
+        f'<div style="background:#fff;border-radius:12px;padding:18px 22px 16px;'
         f'border-left:4px solid #1E2A44;box-shadow:0 1px 6px rgba(0,0,0,0.07);margin-top:0.25rem;">'
         f'<div style="font-size:0.72rem;font-weight:700;color:#00A896;text-transform:uppercase;'
         f'letter-spacing:1px;margin-bottom:14px;">Hinweise auf Unterstützungsbedarfe</div>'
         f'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.5rem;align-items:start;">'
-        f'<div style="font-size:0.88rem;color:#374151;line-height:1.6;">{_gew_line}</div>'
-        f'<div style="font-size:0.88rem;color:#374151;line-height:1.6;">{_hilft_line}</div>'
-        f'<div style="font-size:0.88rem;color:#374151;line-height:1.6;">'
-        f'<b>Ausgewertete FGS-Antworten:</b><br>'
-        f'<span style="font-size:0.82rem;color:#6B7280;">'
-        f'Wünsche: n&thinsp;=&thinsp;{_n_gew_resp} &nbsp;|&nbsp; Ressourcen: n&thinsp;=&thinsp;{_n_hilft_resp}</span>'
-        + (f'<br><span style="font-size:0.78rem;color:#6B7280;font-style:italic;margin-top:8px;display:block;">'
-           f'{_interp}</span>' if _interp else "")
-        + f'</div></div></div>',
+        + _b1 + _b2 + _b3
+        + f'</div>'
+        + _interp_line
+        + f'</div>',
         unsafe_allow_html=True
     )
 
     # E: BELONGING
     st.markdown('<div class="section-title">Sense of Belonging</div>', unsafe_allow_html=True)
     st.markdown("""
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
-      <div class="card" style="margin-bottom:0;"><b>Zugehörigkeitsgefühl nach Dimension</b></div>
-      <div class="card" style="margin-bottom:0;"><b>Vergleichsübersicht</b></div>
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1rem;">
+      <div class="card" style="margin-bottom:0;">
+        <b>Zugehörigkeitsgefühl nach Dimension: FGS und Non-FGS</b><br>
+        <span style="font-size:0.72rem;color:#9CA3AF;font-weight:400;">
+          Mittelwert &nbsp;·&nbsp; Skala: 1 = stimme gar nicht zu, 5 = stimme voll und ganz zu
+        </span>
+      </div>
+      <div class="card" style="margin-bottom:0;"><b>Zentrale Beobachtungen</b></div>
     </div>
     """, unsafe_allow_html=True)
-    e1, e2 = st.columns(2)
+    e1, e2 = st.columns([2, 1])
     with e1:
         if len(df_fgs) >= MIN_N:
             st.plotly_chart(
                 chart_belonging_bars(df_fgs, df_nfgs if len(df_nfgs) >= MIN_N else None),
                 use_container_width=True)
+        else:
+            st.info("Zu wenige FGS-Antworten für diese Auswahl.")
     with e2:
         if len(df_fgs) >= MIN_N:
-            sc_fgs  = calculate_belonging_scores(df_fgs)
-            sc_nfgs = calculate_belonging_scores(df_nfgs) if len(df_nfgs) >= MIN_N else None
-            st.plotly_chart(chart_belonging_radar(sc_fgs, sc_nfgs), use_container_width=True)
+            _sc_fgs  = calculate_belonging_scores(df_fgs)
+            _sc_nfgs = calculate_belonging_scores(df_nfgs) if len(df_nfgs) >= MIN_N else {}
+            _dims    = {k: v for k, v in _sc_fgs.items()
+                        if k != "Gesamt" and pd.notna(v)}
+
+            if _dims:
+                _top_dim = max(_dims, key=_dims.get)
+                _top_val = _dims[_top_dim]
+                _bot_dim = min(_dims, key=_dims.get)
+                _bot_val = _dims[_bot_dim]
+
+                # Gruppenvergleich
+                _comp_text = None
+                if _sc_nfgs:
+                    _diffs = {
+                        k: round(abs(_dims[k] - _sc_nfgs[k]), 2)
+                        for k in _dims
+                        if k in _sc_nfgs and pd.notna(_sc_nfgs.get(k))
+                    }
+                    if _diffs:
+                        _max_dd = max(_diffs, key=_diffs.get)
+                        _max_dv = _diffs[_max_dd]
+                        _comp_text = (
+                            "Die Unterschiede zwischen FGS und Non-FGS sind in allen Dimensionen gering."
+                            if _max_dv <= 0.2 else
+                            f"Grösster Unterschied: {_max_dd} · {_max_dv:.1f} Punkte"
+                        )
+
+                _comp_block = (
+                    f'<div style="padding:8px 0;border-top:1px solid #F3F4F6;">'
+                    f'<div style="font-size:0.75rem;font-weight:600;color:#6B7280;margin-bottom:4px;">'
+                    f'Gruppenvergleich</div>'
+                    f'<div style="font-size:0.82rem;color:#374151;line-height:1.5;">{_comp_text}</div>'
+                    f'</div>'
+                ) if _comp_text else ""
+
+                _ansatz = (
+                    f'<div style="padding-top:8px;">'
+                    f'<div style="font-size:0.72rem;color:#9CA3AF;font-style:italic;line-height:1.5;">'
+                    f'Möglicher Ansatzpunkt: Angebote zur Stärkung von <i>{_bot_dim}</i> prüfen.'
+                    f'</div></div>'
+                ) if _bot_dim else ""
+
+                st.markdown(
+                    f'<div style="background:#fff;border-radius:12px;padding:20px 20px 18px;'
+                    f'border-left:4px solid #1E2A44;box-shadow:0 1px 6px rgba(0,0,0,0.07);">'
+                    f'<div style="font-size:0.72rem;font-weight:700;color:#00A896;'
+                    f'text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;">'
+                    f'Zentrale Beobachtungen</div>'
+                    f'<div style="padding-bottom:10px;border-bottom:1px solid #F3F4F6;">'
+                    f'<div style="font-size:0.75rem;font-weight:600;color:#6B7280;margin-bottom:4px;">'
+                    f'Höchster Wert bei FGS</div>'
+                    f'<div style="font-size:0.88rem;font-weight:700;color:#1E2A44;">{_top_dim}</div>'
+                    f'<div style="font-size:0.82rem;color:{COLORS["blue"]};">Ø {_top_val:.1f} / 5</div>'
+                    f'</div>'
+                    f'<div style="padding:10px 0;border-bottom:1px solid #F3F4F6;">'
+                    f'<div style="font-size:0.75rem;font-weight:600;color:#6B7280;margin-bottom:4px;">'
+                    f'Niedrigster Wert bei FGS</div>'
+                    f'<div style="font-size:0.88rem;font-weight:700;color:#1E2A44;">{_bot_dim}</div>'
+                    f'<div style="font-size:0.82rem;color:{COLORS["blue"]};">Ø {_bot_val:.1f} / 5</div>'
+                    f'</div>'
+                    + _comp_block
+                    + _ansatz
+                    + '</div>',
+                    unsafe_allow_html=True
+                )
+            else:
+                st.info("Keine validen Belonging-Daten vorhanden.")
+        else:
+            st.info("Zu wenige FGS-Antworten für diese Auswahl.")
 
     # F: QUALITATIVE EINBLICKE
     st.markdown('<div class="section-title">Qualitative Einblicke</div>', unsafe_allow_html=True)
-    st.markdown('<div class="card"><b>Persönliche Erfahrungen und Wünsche von FGS</b></div>', unsafe_allow_html=True)
-    q1, q2, q3 = st.columns(3)
-    for col_w, col_data, title, color in [
-        (q1, COL_ZUGEHOERIG_POS, "Was hilft für Zugehörigkeit?",          COLORS["teal"]),
-        (q2, COL_ZUGEHOERIG_NEG, "Wann fühlen Sie sich nicht zugehörig?", COLORS["coral"]),
-        (q3, COL_WUENSCHE,       "Was wünschen Sie sich?",                COLORS["violet"]),
-    ]:
-        with col_w:
-            st.markdown(
+    st.markdown(
+        '<div class="card">'
+        '<b>Persönliche Erfahrungen und Wünsche von FGS</b><br>'
+        '<span style="font-size:0.72rem;color:#9CA3AF;font-weight:400;">'
+        'Offene Antworten, thematisch codiert · Mehrfachcodierungen möglich · anonymisierte Darstellung'
+        '</span></div>',
+        unsafe_allow_html=True
+    )
+
+    if len(df_fgs) < MIN_N:
+        st.warning(
+            "Detailauswertung nicht verfügbar: "
+            "Die aktuelle Filterauswahl umfasst weniger als 5 FGS-Antworten."
+        )
+    else:
+        def _code_answers(series, coding_dict):
+            c = Counter()
+            for v in series.dropna():
+                theme = coding_dict.get(str(v).strip())
+                if theme:
+                    c[theme] += 1
+            return c
+
+        _cnt_pos = _code_answers(df_fgs[COL_ZUGEHOERIG_POS], CODING_POS) \
+            if COL_ZUGEHOERIG_POS in df_fgs.columns else Counter()
+        _cnt_neg = _code_answers(df_fgs[COL_ZUGEHOERIG_NEG], CODING_NEG) \
+            if COL_ZUGEHOERIG_NEG in df_fgs.columns else Counter()
+        _cnt_wun = _code_answers(df_fgs[COL_WUENSCHE], CODING_WUENSCHE) \
+            if COL_WUENSCHE in df_fgs.columns else Counter()
+
+        def _top(counter):
+            return counter.most_common(1)[0] if counter else (None, 0)
+
+        _tp, _np = _top(_cnt_pos)
+        _tn, _nn = _top(_cnt_neg)
+        _tw, _nw = _top(_cnt_wun)
+
+        def _insight_row(label, theme, n, color):
+            if theme:
+                return (
+                    f'<div style="padding:7px 0;border-bottom:1px solid #F3F4F6;">'
+                    f'<span style="font-size:0.75rem;font-weight:600;color:#6B7280;">{label}</span><br>'
+                    f'<span style="font-size:0.88rem;font-weight:700;color:{color};">{theme}</span>'
+                    f'<span style="font-size:0.82rem;color:#9CA3AF;"> · n = {n}</span>'
+                    f'</div>'
+                )
+            return (
+                f'<div style="padding:7px 0;border-bottom:1px solid #F3F4F6;">'
+                f'<span style="font-size:0.75rem;font-weight:600;color:#6B7280;">{label}</span><br>'
+                f'<span style="font-size:0.82rem;color:#9CA3AF;font-style:italic;">'
+                f'Noch keine codierte Auswertung verfügbar.</span>'
+                f'</div>'
+            )
+
+        st.markdown(
+            '<div style="background:#fff;border-radius:12px;padding:18px 20px 14px;'
+            'border-left:4px solid #1E2A44;box-shadow:0 1px 6px rgba(0,0,0,0.07);margin-bottom:1rem;">'
+            '<div style="font-size:0.72rem;font-weight:700;color:#00A896;'
+            'text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">'
+            'Zentrale qualitative Erkenntnisse</div>'
+            + _insight_row("Häufig genannte Ressource", _tp, _np, COLORS["teal"])
+            + _insight_row("Häufig genannte Barriere",  _tn, _nn, COLORS["coral"])
+            + _insight_row("Häufig genannter Wunsch",   _tw, _nw, COLORS["violet"])
+            + '</div>',
+            unsafe_allow_html=True
+        )
+
+        def _theme_bars(counter, accent, max_themes=5):
+            if not counter:
+                return (
+                    '<div style="font-size:0.82rem;color:#9CA3AF;font-style:italic;">'
+                    'Keine codierten Themen verfügbar.</div>'
+                )
+            top  = counter.most_common(max_themes)
+            maxn = top[0][1]
+            html = ""
+            for theme, n in top:
+                pct = int(n / maxn * 100)
+                html += (
+                    f'<div style="margin-bottom:9px;">'
+                    f'<div style="display:flex;justify-content:space-between;'
+                    f'font-size:0.80rem;color:#374151;margin-bottom:3px;">'
+                    f'<span>{theme}</span>'
+                    f'<span style="color:#9CA3AF;white-space:nowrap;padding-left:8px;">'
+                    f'n = {n}</span></div>'
+                    f'<div style="background:#F3F4F6;border-radius:4px;height:7px;">'
+                    f'<div style="background:{accent};border-radius:4px;height:7px;'
+                    f'width:{pct}%;"></div></div>'
+                    f'</div>'
+                )
+            return html
+
+        _theme_cols = []
+        for title, counter, color in [
+            ("Was stärkt Zugehörigkeit?",    _cnt_pos, COLORS["teal"]),
+            ("Was erschwert Zugehörigkeit?", _cnt_neg, COLORS["coral"]),
+            ("Gewünschte Verbesserungen",    _cnt_wun, COLORS["violet"]),
+        ]:
+            _theme_cols.append(
+                f'<div style="display:flex;flex-direction:column;">'
                 f'<div style="font-size:13px;font-weight:600;color:{color};'
-                f'padding:0.25rem 0 0.75rem 0;">{title}</div>',
+                f'min-height:2.2rem;padding-bottom:0.5rem;">{title}</div>'
+                + _theme_bars(counter, color)
+                + f'</div>'
+            )
+        st.markdown(
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;'
+            'gap:1.25rem;margin-bottom:1rem;">'
+            + "".join(_theme_cols)
+            + '</div>',
+            unsafe_allow_html=True
+        )
+
+        with st.expander("Anonymisierte Beispielaussagen"):
+            _ex_cols = []
+            for examples, title, color in [
+                (ANON_EXAMPLES["pos"],      "Was stärkt Zugehörigkeit?",    COLORS["teal"]),
+                (ANON_EXAMPLES["neg"],      "Was erschwert Zugehörigkeit?", COLORS["coral"]),
+                (ANON_EXAMPLES["wuensche"], "Gewünschte Verbesserungen",    COLORS["violet"]),
+            ]:
+                cards = "".join(
+                    f'<div style="background:#F9FAFB;border-left:3px solid {color};'
+                    f'border-radius:0 6px 6px 0;padding:8px 10px;margin-bottom:6px;'
+                    f'font-size:0.82rem;color:#374151;font-style:italic;">«{ex}»</div>'
+                    for ex in examples
+                )
+                _ex_cols.append(
+                    f'<div style="display:flex;flex-direction:column;">'
+                    f'<div style="font-size:0.75rem;font-weight:600;color:{color};'
+                    f'min-height:2.2rem;padding-bottom:0.5rem;">{title}</div>'
+                    + cards +
+                    f'</div>'
+                )
+            st.markdown(
+                '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;'
+                'gap:1.25rem;padding:0.25rem 0 0.5rem 0;">'
+                + "".join(_ex_cols)
+                + '</div>',
                 unsafe_allow_html=True
             )
-            if col_data in df_fgs.columns and len(df_fgs) >= MIN_N:
-                antworten = df_fgs[col_data].dropna()
-                antworten = antworten[antworten.str.strip() != ""]
-                if len(antworten) >= MIN_N:
-                    for answer, count in antworten.value_counts().head(5).items():
-                        st.markdown(
-                            f'<div style="background:#F9FAFB;border-radius:6px;padding:7px 10px;'
-                            f'margin-bottom:5px;font-size:12px;color:#374151;">{answer}'
-                            f'<span style="float:right;color:#9CA3AF;">{count}×</span></div>',
-                            unsafe_allow_html=True
-                        )
-                else:
-                    st.caption("Zu wenige Antworten.")
 
-    st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div style="background:#fff;border-radius:12px;padding:18px 20px 16px;'
+            'box-shadow:0 1px 6px rgba(0,0,0,0.07);margin-top:1rem;">'
+            '<div style="font-size:0.72rem;font-weight:700;color:#7B61FF;'
+            'text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">'
+            'Mögliche Ansatzpunkte für Hochschulakteure</div>'
+            '<div style="font-size:0.75rem;color:#6B7280;font-style:italic;margin-bottom:10px;">'
+            'Vorsichtige Hinweise auf Basis der häufig genannten Themen – '
+            'keine nachgewiesenen Wirkungen.</div>'
+            '<div style="display:flex;flex-wrap:wrap;gap:10px;">'
+            '<div style="flex:1;min-width:180px;background:#F9FAFB;'
+            'border-radius:8px;padding:10px 12px;">'
+            '<div style="font-size:0.78rem;font-weight:700;color:#1E2A44;margin-bottom:4px;">'
+            'Studienberatung</div>'
+            '<div style="font-size:0.80rem;color:#374151;line-height:1.5;">'
+            'Orientierungs- und Informationsangebote für Studieneinstieg und Modulwahl prüfen.'
+            '</div></div>'
+            '<div style="flex:1;min-width:180px;background:#F9FAFB;'
+            'border-radius:8px;padding:10px 12px;">'
+            '<div style="font-size:0.78rem;font-weight:700;color:#1E2A44;margin-bottom:4px;">'
+            'Dozierende</div>'
+            '<div style="font-size:0.80rem;color:#374151;line-height:1.5;">'
+            'Mehr Transparenz zu Modulaufbau, Zielen und Abläufen – '
+            'insbesondere für Teilzeitstudierende.'
+            '</div></div>'
+            '<div style="flex:1;min-width:180px;background:#F9FAFB;'
+            'border-radius:8px;padding:10px 12px;">'
+            '<div style="font-size:0.78rem;font-weight:700;color:#1E2A44;margin-bottom:4px;">'
+            'Diversity & Soziales</div>'
+            '<div style="font-size:0.80rem;color:#374151;line-height:1.5;">'
+            'Niederschwellige Kennenlernangebote und soziale Vernetzungsmöglichkeiten ausbauen.'
+            '</div></div>'
+            '</div></div>',
+            unsafe_allow_html=True
+        )

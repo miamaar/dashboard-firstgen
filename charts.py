@@ -51,12 +51,13 @@ def chart_fgs_bar(df):
     fig.update_layout(
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        font=dict(family="Inter, sans-serif", size=12, color="#374151"),
-        height=180,
-        margin=dict(t=10, b=10, l=10, r=90),
+        font=dict(family="Inter, sans-serif", size=11, color="#374151"),
+        height=200,
+        margin=dict(t=0, b=10, l=10, r=90),
         showlegend=False,
-        xaxis=dict(range=[0, x_max * 1.45], showticklabels=False, showgrid=False, zeroline=False),
-        yaxis=dict(showgrid=False, tickfont=dict(size=12)),
+        xaxis=dict(range=[0, x_max * 1.45], showticklabels=False,
+                   gridcolor="#E5E7EB", showgrid=True, zeroline=False),
+        yaxis=dict(showgrid=False, tickfont=dict(size=11)),
     )
     return fig
 
@@ -158,11 +159,10 @@ def chart_belonging_radar(scores_fgs, scores_nfgs=None):
 def chart_belonging_bars(df_fgs, df_nfgs=None):
     rows = []
     for group_name, group_cols in SOB_GROUPS.items():
-        short  = SOB_SHORT_NAMES.get(group_name, group_name)
         cols_f = [c for c in group_cols if c in df_fgs.columns]
         if cols_f:
             rows.append({
-                "Dimension": short,
+                "Dimension": group_name,   # voller Name statt Kurzform
                 "Mittelwert": round(df_fgs[cols_f].mean().mean(), 1),
                 "Gruppe": "FGS"
             })
@@ -170,28 +170,32 @@ def chart_belonging_bars(df_fgs, df_nfgs=None):
             cols_n = [c for c in group_cols if c in df_nfgs.columns]
             if cols_n:
                 rows.append({
-                    "Dimension": short,
+                    "Dimension": group_name,
                     "Mittelwert": round(df_nfgs[cols_n].mean().mean(), 1),
                     "Gruppe": "Non-FGS"
                 })
     fig = px.bar(
         pd.DataFrame(rows),
-        x="Dimension", y="Mittelwert",
-        color="Gruppe", barmode="group",
-        range_y=[1, 5], text="Mittelwert",
+        x="Mittelwert", y="Dimension",
+        color="Gruppe", barmode="group", orientation="h",
+        range_x=[1, 5], text="Mittelwert",
         color_discrete_map={"FGS": COLORS["blue"], "Non-FGS": COLORS["teal"]}
     )
-    fig.update_traces(textposition="outside", textfont_size=11)
+    fig.update_traces(
+        textposition="outside",
+        textfont_size=11,
+        texttemplate="%{text:.1f}",
+    )
     fig.update_layout(
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="Inter, sans-serif", size=12, color="#374151"),
-        height=220,
-        margin=dict(t=10, b=10, l=10, r=20),
-        xaxis_title="",
-        yaxis_title="Mittelwert (1-5)",
-        legend=dict(orientation="h", yanchor="bottom", y=1.02)
+        height=310,
+        margin=dict(t=10, b=10, l=10, r=60),
+        xaxis_title="Mittelwert (1–5)",
+        yaxis_title="",
+        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
     )
-    fig.update_yaxes(gridcolor="#E5E7EB", dtick=1, showgrid=True)
-    fig.update_xaxes(showgrid=False)
+    fig.update_xaxes(gridcolor="#E5E7EB", dtick=1, showgrid=True, range=[1, 5.6])
+    fig.update_yaxes(showgrid=False, automargin=True)
     return fig
