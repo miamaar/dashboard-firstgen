@@ -98,27 +98,31 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
     # 3. Spalten umbenennen (Mapping anwenden)
     df = df.rename(columns=COLUMN_MAP)
  
-    # 4. Herausforderungen: Text → Zahl (falls nötig)
+    # 4. Herausforderungen: Text → Zahl
+    # Robuster Apply statt dtype==object, weil pandas StringDtype != object
     ch_cols = list(CHALLENGES.values())
     for col in ch_cols:
         if col in df.columns:
-            if df[col].dtype == object:
-                df[col] = df[col].map(CHALLENGE_TEXT_MAP)
+            df[col] = df[col].apply(
+                lambda x: CHALLENGE_TEXT_MAP.get(str(x).strip(), x) if pd.notna(x) else x
+            )
             df[col] = pd.to_numeric(df[col], errors="coerce")
- 
-    # 5. SoB-Spalten: Text → Zahl (falls nötig)
+
+    # 5. SoB-Spalten: Text → Zahl (robuster Apply)
     sob_cols = [c for g in SOB_GROUPS.values() for c in g]
     for col in sob_cols:
         if col in df.columns:
-            if df[col].dtype == object:
-                df[col] = df[col].map(LIKERT_TEXT_MAP)
+            df[col] = df[col].apply(
+                lambda x: LIKERT_TEXT_MAP.get(str(x).strip(), x) if pd.notna(x) else x
+            )
             df[col] = pd.to_numeric(df[col], errors="coerce")
- 
-    # 6. FGS-Likert: Text → Zahl (falls nötig)
+
+    # 6. FGS-Likert: Text → Zahl (robuster Apply)
     for col in FGS_LIKERT.values():
         if col in df.columns:
-            if df[col].dtype == object:
-                df[col] = df[col].map(LIKERT_TEXT_MAP)
+            df[col] = df[col].apply(
+                lambda x: LIKERT_TEXT_MAP.get(str(x).strip(), x) if pd.notna(x) else x
+            )
             df[col] = pd.to_numeric(df[col], errors="coerce")
  
     # 7. Alter numerisch

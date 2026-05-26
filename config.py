@@ -26,7 +26,7 @@ CHALLENGES = {
     "Zeitdruck durch Arbeit":        "ch_zeitdruck",
     "Unsicherheit im Studium":       "ch_unsicherheit",
     "Fehlendes Zugehörigkeitsgefühl":"ch_zugehoerigkeit",
-    "Fehlende Informationen":        "ch_information",
+    "Fehlende Informationen zum Studium": "ch_information",
     "Akademische Anforderungen":     "ch_akademisch",
 }
 

@@ -20,35 +20,43 @@ SOB_SHORT_NAMES = {
 }
 
 
-def chart_fgs_donut(df):
-    counts = df[COL_FGS].value_counts().reset_index()
-    counts.columns = ["Gruppe", "Anzahl"]
-    fig = px.pie(
-        counts, values="Anzahl", names="Gruppe", hole=0.55,
-        color_discrete_sequence=[COLORS["blue"], COLORS["teal"], COLORS["orange"]]
-    )
-    fig.update_traces(
-        textinfo="percent",
-        textfont_size=12,
-        textposition="inside",
-        insidetextorientation="radial",
-    )
-    # Kein **_LAYOUT hier — margin nur einmal angeben
+def chart_fgs_bar(df):
+    """Horizontales Balkendiagramm: FGS-Status-Verteilung mit Anzahl und Prozent."""
+    counts = df[COL_FGS].value_counts()
+    total  = counts.sum()
+    order  = [v for v in ["Ja", "Nein", "Unsicher"] if v in counts.index]
+    order += [v for v in counts.index if v not in order]
+
+    rows = []
+    for g in order:
+        n   = int(counts.get(g, 0))
+        pct = round(n / total * 100) if total else 0
+        rows.append({"Gruppe": g, "Anzahl": n, "Label": f"{n}  ({pct} %)"})
+    data = pd.DataFrame(rows)
+
+    color_map = {"Ja": COLORS["blue"], "Nein": COLORS["teal"], "Unsicher": COLORS["orange"]}
+    colors = [color_map.get(g, COLORS["blue"]) for g in data["Gruppe"]]
+
+    x_max = data["Anzahl"].max() if len(data) > 0 else 1
+    fig = go.Figure(go.Bar(
+        x=data["Anzahl"],
+        y=data["Gruppe"],
+        orientation="h",
+        text=data["Label"],
+        textposition="outside",
+        marker_color=colors,
+        textfont=dict(size=12),
+        cliponaxis=False,
+    ))
     fig.update_layout(
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="Inter, sans-serif", size=12, color="#374151"),
-        height=200,
-        margin=dict(t=10, b=40, l=10, r=10),
-        showlegend=True,
-        legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=-0.25,
-            xanchor="center",
-            x=0.5,
-            font=dict(size=11),
-        ),
+        height=180,
+        margin=dict(t=10, b=10, l=10, r=90),
+        showlegend=False,
+        xaxis=dict(range=[0, x_max * 1.45], showticklabels=False, showgrid=False, zeroline=False),
+        yaxis=dict(showgrid=False, tickfont=dict(size=12)),
     )
     return fig
 
