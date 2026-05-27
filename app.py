@@ -20,8 +20,8 @@ if "page" not in st.session_state:
     st.session_state.page = "home"
 page = st.session_state.page
 
-# nth-child-Index des aktiven Navbar-Buttons (Logo=1, Spacer=2, Home=3, Dashboard=4 ...)
-_active_nth = 3 if page == "home" else 4
+# nth-child-Index des aktiven Navbar-Buttons (Logo=1, Spacer=2, Home=3, Dashboard=4, Über=5, Kontakt=6)
+_active_nth = 3 if page == "home" else (4 if page == "dashboard" else 5)
 _bg = "linear-gradient(140deg,#EAF7F5 0%,#EBF5FF 55%,#EAF7F5 100%)" if page == "home" else "#F5F7FB"
 
 # ── CSS ───────────────────────────────────────────────────────────────────────
@@ -36,10 +36,16 @@ section[data-testid="stSidebar"],
 }}
 .main, .main .block-container,
 [data-testid="stAppViewContainer"],
-[data-testid="stMain"],
-[data-testid="stMainBlockContainer"] {{
+[data-testid="stMain"] {{
     padding:0 !important; max-width:100% !important; margin:0 !important;
     background:transparent !important;
+}}
+[data-testid="stMainBlockContainer"] {{
+    max-width:1400px !important;
+    margin:0 auto !important;
+    padding:0 2.5rem !important;
+    background:transparent !important;
+    box-sizing:border-box !important;
 }}
 div[data-testid="stVerticalBlock"],
 div[data-testid="column"] {{
@@ -47,12 +53,6 @@ div[data-testid="column"] {{
 }}
 div[data-testid="stHorizontalBlock"]:not(:first-of-type) {{
     background:{"transparent" if page == "home" else "#FFFFFF"} !important;
-}}
-/* Filter-Zeile: Column-Divs mit BaseWeb-Select erhalten sichtbares vertikales Padding */
-div[data-testid="stHorizontalBlock"]:not(:first-of-type)
-    div[data-testid="column"]:has(div[data-baseweb="select"]) {{
-    padding-top:20px !important;
-    padding-bottom:20px !important;
 }}
 /* Fallback ohne :has – Label über Selectbox bekommt mehr Luft nach oben */
 div[data-baseweb="select"] {{
@@ -218,8 +218,8 @@ div[data-testid="stHorizontalBlock"]:first-of-type > div:nth-child({_active_nth}
 </style>""", unsafe_allow_html=True)
 
 # ── NAVBAR ────────────────────────────────────────────────────────────────────
-logo_col, spacer, c_home, c_dash, c_kont = st.columns(
-    [2.5, 4.2, 0.9, 1.1, 1.0]
+logo_col, spacer, c_home, c_dash, c_ueber = st.columns(
+    [2.5, 3.8, 0.9, 1.1, 1.5]
 )
 with logo_col:
     st.markdown("""
@@ -241,8 +241,10 @@ with c_dash:
     if st.button("Dashboard", key="nav_dash", use_container_width=True):
         st.session_state.page = "dashboard"
         st.rerun()
-with c_kont:
-    st.button("Kontakt", key="nav_kont", use_container_width=True)
+with c_ueber:
+    if st.button("Über die Daten", key="nav_ueber", use_container_width=True):
+        st.session_state.page = "ueber"
+        st.rerun()
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -346,28 +348,41 @@ elif page == "dashboard":
                 'text-transform:uppercase;letter-spacing:1.5px;margin:0 0 10px 0;">Filter</p>',
                 unsafe_allow_html=True)
     f1, f2, f3, f4, f5, f6 = st.columns(6)
+    _sp = '<div style="height:14px"></div>'
     with f1:
+        st.markdown(_sp, unsafe_allow_html=True)
         sel_gruppe = st.selectbox("Gruppe", ["Alle", "FGS", "Non-FGS"], key="fg")
+        st.markdown(_sp, unsafe_allow_html=True)
     with f2:
+        st.markdown(_sp, unsafe_allow_html=True)
         sg_opts = (["Alle"] + sorted(df_raw[COL_STUDIENGANG].dropna().unique().tolist())
                    if COL_STUDIENGANG in df_raw.columns else ["Alle"])
         sel_sg = st.selectbox("Studiengang", sg_opts, key="fsg")
+        st.markdown(_sp, unsafe_allow_html=True)
     with f3:
+        st.markdown(_sp, unsafe_allow_html=True)
         g_opts = (["Alle"] + sorted(df_raw[COL_GESCHLECHT].dropna().unique().tolist())
                   if COL_GESCHLECHT in df_raw.columns else ["Alle"])
         sel_g = st.selectbox("Geschlecht", g_opts, key="fg2")
+        st.markdown(_sp, unsafe_allow_html=True)
     with f4:
+        st.markdown(_sp, unsafe_allow_html=True)
         a_opts = (["Alle"] + sorted(df_raw[COL_ARBEIT].dropna().unique().tolist())
                   if COL_ARBEIT in df_raw.columns else ["Alle"])
         sel_a = st.selectbox("Erwerbstätigkeit", a_opts, key="fa")
+        st.markdown(_sp, unsafe_allow_html=True)
     with f5:
+        st.markdown(_sp, unsafe_allow_html=True)
         m_opts = (["Alle"] + sorted(df_raw[COL_MIGRATION].dropna().unique().tolist())
                   if COL_MIGRATION in df_raw.columns else ["Alle"])
         sel_m = st.selectbox("Migration", m_opts, key="fm")
+        st.markdown(_sp, unsafe_allow_html=True)
     with f6:
+        st.markdown(_sp, unsafe_allow_html=True)
         j_opts = (["Alle"] + sorted(df_raw[COL_ABSCHLUSSJAHR].dropna().unique().tolist())
                   if COL_ABSCHLUSSJAHR in df_raw.columns else ["Alle"])
         sel_j = st.selectbox("Jahr", j_opts, key="fj")
+        st.markdown(_sp, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
     # FILTER ANWENDEN
@@ -382,6 +397,12 @@ elif page == "dashboard":
 
     df_fgs  = df[df[COL_FGS].str.lower() == "ja"].copy()  if COL_FGS in df.columns else df.copy()
     df_nfgs = df[df[COL_FGS].str.lower() == "nein"].copy() if COL_FGS in df.columns else pd.DataFrame()
+
+    # Non-FGS-Filter: df_fgs ist leer weil df nur "nein"-Zeilen enthält.
+    # Tausch: Non-FGS-Daten in df_fgs laden, df_nfgs leer lassen.
+    if sel_gruppe == "Non-FGS":
+        df_fgs  = df_nfgs.copy()
+        df_nfgs = pd.DataFrame()
 
     # ── KPI helpers ──────────────────────────────────────────────────────────
     from collections import Counter
@@ -401,7 +422,7 @@ elif page == "dashboard":
 
     # Numeric KPI values
     _n_total     = len(df_raw)
-    _n_fgs_kpi   = int((df[COL_FGS].str.lower() == "ja").sum()) if COL_FGS in df.columns else 0
+    _n_fgs_kpi   = len(df_fgs)
     _n_all_kpi   = len(df)
     _pct_fgs_kpi = round(_n_fgs_kpi / _n_all_kpi * 100) if _n_all_kpi > 0 else 0
 
@@ -489,9 +510,8 @@ elif page == "dashboard":
     with a1:
         st.plotly_chart(chart_fgs_bar(df_raw), use_container_width=True)
     with a2:
-        if COL_STUDIENGANG in df_raw.columns:
-            sg_f = (df_raw[df_raw[COL_FGS].str.lower() == "ja"][COL_STUDIENGANG]
-                    .value_counts().reset_index())
+        if COL_STUDIENGANG in df_fgs.columns and len(df_fgs) >= MIN_N:
+            sg_f = df_fgs[COL_STUDIENGANG].value_counts().reset_index()
             sg_f.columns = ["Studiengang", "Anzahl"]
             fig = px.bar(sg_f, x="Anzahl", y="Studiengang", orientation="h",
                          color_discrete_sequence=[COLORS["blue"]], text="Anzahl")
@@ -711,40 +731,164 @@ elif page == "dashboard":
 
     # C: KRITISCHE PHASEN
     st.markdown('<div class="section-title">Wann entstehen kritische Studienphasen?</div>', unsafe_allow_html=True)
+
+    # Kanonische Phasen-Reihenfolge und Schreibvarianten-Mapping
+    _PHASE_ORDER = [
+        "Studienstart",
+        "Erste Prüfungsphase",
+        "Mitte des Studiums",
+        "Abschlussphase",
+        "Bisher keine kritische Phase",
+    ]
+    _PHASE_ALIASES = {
+        "studienstart":                 "Studienstart",
+        "erste prüfungsphase":          "Erste Prüfungsphase",
+        "prüfungsphase":                "Erste Prüfungsphase",
+        "mitte des studiums":           "Mitte des Studiums",
+        "mitte studium":                "Mitte des Studiums",
+        "abschlussphase":               "Abschlussphase",
+        "bisher keine kritische phase": "Bisher keine kritische Phase",
+        "keine":                        "Bisher keine kritische Phase",
+    }
+
+    def _split_phases(series):
+        """Zerlegt Komma-getrennte Mehrfachantworten und aggregiert je kanonischer Phase."""
+        counts = {p: 0 for p in _PHASE_ORDER}
+        for val in series.dropna():
+            raw = str(val).strip()
+            if not raw:
+                continue
+            for part in raw.split(","):
+                part = part.strip()
+                canonical = _PHASE_ALIASES.get(part.lower())
+                if canonical:
+                    counts[canonical] += 1
+        return counts
+
     if COL_HERAUSFORDERND in df.columns and len(df) >= MIN_N:
-        import plotly.express as px
-        st.markdown(
-            '<div class="card" style="margin-bottom:0.5rem;">'
-            '<b>Wann war das Studium bisher besonders herausfordernd?</b></div>',
-            unsafe_allow_html=True)
-        c1, c2 = st.columns([3, 1])
-        rows = []
-        if len(df_fgs) >= MIN_N:
-            for phase, cnt in df_fgs[COL_HERAUSFORDERND].value_counts().items():
-                rows.append({"Phase": phase, "Anzahl": int(cnt), "Gruppe": "FGS"})
-        if len(df_nfgs) >= MIN_N:
-            for phase, cnt in df_nfgs[COL_HERAUSFORDERND].value_counts().items():
-                rows.append({"Phase": phase, "Anzahl": int(cnt), "Gruppe": "Non-FGS"})
+        # Titelkarten – gleiche CSS-Klasse wie in Abschnitt A
+        st.markdown("""
+        <div style="display:grid;grid-template-columns:2.2fr 1fr;gap:1rem;margin-bottom:0.75rem;">
+          <div class="card" style="margin-bottom:0;"><b>Kritische Phasen im Studienverlauf</b></div>
+          <div class="card" style="margin-bottom:0;"><b>Zentrale Erkenntnis</b></div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        c1, c2 = st.columns([2.2, 1])
+
         with c1:
-            if rows:
-                fig = px.bar(pd.DataFrame(rows), x="Phase", y="Anzahl", color="Gruppe",
-                             barmode="group", text="Anzahl",
-                             color_discrete_map={"FGS": COLORS["blue"], "Non-FGS": COLORS["teal"]})
-                fig.update_traces(textposition="outside", textfont_size=11)
-                fig.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-                                  margin=dict(t=0,b=0), height=240, xaxis_title="")
-                fig.update_yaxes(gridcolor="#E5E7EB", dtick=2, showgrid=True)
-                fig.update_xaxes(showgrid=False)
-                st.plotly_chart(fig, use_container_width=True)
+            _src = df_fgs[COL_HERAUSFORDERND] if len(df_fgs) >= MIN_N else pd.Series(dtype=str)
+            phase_counts = _split_phases(_src)
+            # Umgekehrte Reihenfolge → Studienstart erscheint oben im horizontalen Balkendiagramm
+            phase_df = pd.DataFrame(
+                [{"Phase": p, "Anzahl": phase_counts[p]} for p in reversed(_PHASE_ORDER)]
+            )
+            if phase_df["Anzahl"].sum() > 0:
+                _max_n = phase_df["Anzahl"].max()
+                _colors = [
+                    COLORS["teal"] if n == _max_n and n > 0 else COLORS["blue"]
+                    for n in phase_df["Anzahl"]
+                ]
+                fig_c = go.Figure(go.Bar(
+                    x=phase_df["Anzahl"],
+                    y=phase_df["Phase"],
+                    orientation="h",
+                    text=phase_df["Anzahl"],
+                    textposition="outside",
+                    marker_color=_colors,
+                    textfont=dict(size=12),
+                    cliponaxis=False,
+                ))
+                fig_c.update_layout(
+                    paper_bgcolor="rgba(0,0,0,0)",
+                    plot_bgcolor="rgba(0,0,0,0)",
+                    font=dict(family="Inter, sans-serif", size=12, color="#374151"),
+                    height=280,
+                    margin=dict(t=0, b=10, l=10, r=60),
+                    showlegend=False,
+                    xaxis=dict(
+                        range=[0, _max_n * 1.4 if _max_n > 0 else 10],
+                        showticklabels=True,
+                        gridcolor="#E5E7EB",
+                        showgrid=True,
+                        zeroline=False,
+                        dtick=max(1, _max_n // 5),
+                    ),
+                    yaxis=dict(showgrid=False, tickfont=dict(size=11), automargin=True),
+                )
+                st.plotly_chart(fig_c, use_container_width=True)
+                st.markdown(
+                    '<p style="font-size:11px;color:#9CA3AF;margin-top:-8px;">'
+                    'Mehrfachnennungen möglich; dargestellt ist die Anzahl der Nennungen je Studienphase.</p>',
+                    unsafe_allow_html=True,
+                )
+            else:
+                st.info("Keine Daten vorhanden.")
+
         with c2:
             if len(df_fgs) >= MIN_N and COL_HERAUSFORDERND in df_fgs.columns:
-                top = df_fgs[COL_HERAUSFORDERND].mode()[0]
+                _pc = _split_phases(df_fgs[COL_HERAUSFORDERND])
+                # Top-2 Phasen (ohne "Bisher keine kritische Phase") für die Insight-Karte
+                _ranked = sorted(
+                    [(p, _pc[p]) for p in _PHASE_ORDER if p != "Bisher keine kritische Phase"],
+                    key=lambda x: x[1], reverse=True,
+                )
+                _top_phases = [p for p, n in _ranked[:2] if n > 0]
+                _top_label = " & ".join(_top_phases) if _top_phases else "—"
                 st.markdown(f"""
                 <div class="insight-box">
-                  <div style="font-size:11px;font-weight:700;color:#2D9CDB;margin-bottom:4px;">KRITISCHSTE PHASE (FGS)</div>
-                  <div style="font-size:18px;font-weight:700;color:#1E2A44;">{top}</div>
-                  <div style="font-size:12px;color:#6B7280;margin-top:6px;">Häufigste Nennung</div>
+                  <div style="font-size:10px;font-weight:700;color:#2D9CDB;text-transform:uppercase;
+                              letter-spacing:1.2px;margin-bottom:8px;">Zentrale Erkenntnis</div>
+                  <div style="font-size:15px;font-weight:700;color:#1E2A44;line-height:1.3;
+                              margin-bottom:10px;">{_top_label}</div>
+                  <div style="font-size:12px;color:#374151;margin-bottom:10px;line-height:1.5;">
+                    In diesen frühen Studienphasen zeigen sich die häufigsten Herausforderungen.
+                  </div>
+                  <div style="font-size:11px;color:#6B7280;border-top:1px solid #BFDBFE;
+                              padding-top:8px;line-height:1.5;">
+                    Möglicher Ansatzpunkt: Orientierung, Peer-Mentoring und frühe Prüfungsberatung.
+                  </div>
                 </div>""", unsafe_allow_html=True)
+
+        # Aufklappbare Detailansicht mit Originalantworten (Kombinationen)
+        with st.expander("Detailansicht: Kombinationen genannter Studienphasen", expanded=False):
+            _rows_d = []
+            if len(df_fgs) >= MIN_N:
+                for _phase, _cnt in df_fgs[COL_HERAUSFORDERND].value_counts().items():
+                    _rows_d.append({"Antwort": _phase, "Anzahl": int(_cnt), "Gruppe": "FGS"})
+            if len(df_nfgs) >= MIN_N:
+                for _phase, _cnt in df_nfgs[COL_HERAUSFORDERND].value_counts().items():
+                    _rows_d.append({"Antwort": _phase, "Anzahl": int(_cnt), "Gruppe": "Non-FGS"})
+            if _rows_d:
+                _df_d = pd.DataFrame(_rows_d)
+                # Sortierung: häufigste Antwort oben
+                _order = (
+                    _df_d.groupby("Antwort")["Anzahl"].sum()
+                    .sort_values().index.tolist()
+                )
+                _n_cats = len(_df_d["Antwort"].unique())
+                _fig_d = px.bar(
+                    _df_d,
+                    x="Anzahl", y="Antwort", color="Gruppe",
+                    barmode="group", text="Anzahl",
+                    orientation="h",
+                    category_orders={"Antwort": _order},
+                    color_discrete_map={"FGS": COLORS["blue"], "Non-FGS": COLORS["teal"]},
+                )
+                _fig_d.update_traces(textposition="outside", textfont_size=11, cliponaxis=False)
+                _fig_d.update_layout(
+                    paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                    font=dict(family="Inter, sans-serif", size=11, color="#374151"),
+                    height=max(280, _n_cats * 38),
+                    margin=dict(t=10, b=10, l=10, r=60),
+                    xaxis_title="Anzahl", yaxis_title="",
+                    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+                )
+                _fig_d.update_xaxes(gridcolor="#E5E7EB", showgrid=True, zeroline=False)
+                _fig_d.update_yaxes(showgrid=False, automargin=True, tickfont=dict(size=11))
+                st.plotly_chart(_fig_d, use_container_width=True)
+            else:
+                st.info("Keine Daten vorhanden.")
 
     # D: UNTERSTÜTZUNG
     st.markdown('<div class="section-title">Was hilft und was fehlt?</div>', unsafe_allow_html=True)
@@ -1191,3 +1335,95 @@ elif page == "dashboard":
             '</div></div>',
             unsafe_allow_html=True
         )
+
+# ════════════════════════════════════════════════════════════════════════════
+# ÜBER DIE DATEN
+# ════════════════════════════════════════════════════════════════════════════
+elif page == "ueber":
+    _ueber_html = (
+        '<div class="dash-wrap">'
+        '<div style="background:#ffffff;border-radius:16px;padding:2.5rem 3rem;position:relative;overflow:hidden;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center;min-height:180px;border:1px solid #E5E7EB;box-shadow:0 2px 10px rgba(0,0,0,0.05);">'
+        '<div style="position:absolute;width:280px;height:280px;background:#00A896;border-radius:50%;opacity:0.07;top:-100px;right:260px;pointer-events:none;"></div>'
+        '<div style="position:absolute;width:200px;height:200px;background:#2D9CDB;border-radius:50%;opacity:0.07;bottom:-60px;right:80px;pointer-events:none;"></div>'
+        '<div style="position:relative;z-index:1;">'
+                '<h2 style="font-size:42px;font-weight:800;color:#1E2A44;font-style:italic;margin:0 0 10px 0;line-height:1.15;font-family:Inter,sans-serif;">&#220;ber die Daten</h2>'
+        '<p style="font-size:13px;color:#4B5563;margin:0;line-height:1.6;">Datengrundlage, Datenschutz und Hinweise zur Interpretation</p>'
+        '</div>'
+        '<div style="display:flex;align-items:center;gap:2.5rem;position:relative;z-index:1;flex-shrink:0;">'
+        '<div style="text-align:center;">'
+        '<div style="font-size:34px;font-weight:800;color:#00A896;line-height:1;font-family:Inter,sans-serif;">2026</div>'
+        '<div style="font-size:10px;font-weight:600;color:#6B7280;text-transform:uppercase;letter-spacing:0.6px;margin-top:5px;">Datenstand</div>'
+        '</div>'
+        '<div style="width:1px;height:44px;background:#A8D5CC;"></div>'
+        '<div style="text-align:center;">'
+        '<div style="font-size:34px;font-weight:800;color:#7B61FF;line-height:1;font-family:Inter,sans-serif;">100%</div>'
+        '<div style="font-size:10px;font-weight:600;color:#6B7280;text-transform:uppercase;letter-spacing:0.6px;margin-top:5px;">Anonymisiert</div>'
+        '</div>'
+        '</div>'
+        '</div>'
+        '<div style="background:#fff;border-bottom:1px solid #E5E7EB;border-radius:12px;padding:0.9rem 1.75rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.7rem;flex-wrap:wrap;">'
+        '<span style="font-size:9px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:1px;margin-right:0.5rem;">Datenpipeline</span>'
+        '<span style="background:#2D9CDB;color:#fff;border-radius:6px;padding:4px 11px;font-size:10px;font-weight:600;">Google Forms (anonym)</span>'
+        '<span style="color:#9CA3AF;font-size:13px;">&#8594;</span>'
+        '<span style="background:#F5F7FB;color:#6B7280;border:0.5px solid #E5E7EB;border-radius:6px;padding:4px 11px;font-size:10px;font-weight:600;">CSV-Export</span>'
+        '<span style="color:#9CA3AF;font-size:13px;">&#8594;</span>'
+        '<span style="background:#F5F7FB;color:#6B7280;border:0.5px solid #E5E7EB;border-radius:6px;padding:4px 11px;font-size:10px;font-weight:600;">Datenbereinigung</span>'
+        '<span style="color:#9CA3AF;font-size:13px;">&#8594;</span>'
+        '<span style="background:#F5F7FB;color:#6B7280;border:0.5px solid #E5E7EB;border-radius:6px;padding:4px 11px;font-size:10px;font-weight:600;">Aggregation</span>'
+        '<span style="color:#9CA3AF;font-size:13px;">&#8594;</span>'
+        '<span style="background:#1E2A44;color:#fff;border-radius:6px;padding:4px 11px;font-size:10px;font-weight:600;">Dashboard</span>'
+        '</div>'
+        '<div style="background:#F5F7FB;padding:1.5rem 0;border-radius:12px;">'
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">'
+        '<div style="background:#fff;border-radius:12px;border:1px solid #E5E7EB;box-shadow:0 1px 8px rgba(0,0,0,0.05);overflow:hidden;">'
+        '<div style="height:3px;background:linear-gradient(90deg,#2D9CDB,#7B61FF);"></div>'
+        '<div style="padding:1.25rem 1.5rem;">'
+        '<div style="font-size:9px;font-weight:700;color:#2D9CDB;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">Datengrundlage</div>'
+        '<p style="font-size:12px;color:#6B7280;line-height:1.65;margin:0 0 14px 0;">Die dargestellten Ergebnisse basieren auf einer Studierendenbefragung zu Bildungsbiografien, Herausforderungen, Ressourcen und Unterstützungsbedarfen von First-Generation-Studierenden am Departement Informatik der HSLU. Die Daten wurden bereinigt und ausschliesslich aggregiert visualisiert.</p>'
+        '<span style="display:inline-block;background:#EFF6FF;color:#2D9CDB;border-radius:6px;padding:4px 11px;font-size:10px;font-weight:600;">Google Forms · CSV-Export</span>'
+        '</div>'
+        '</div>'
+        '<div style="background:#fff;border-radius:12px;border:1px solid #E5E7EB;box-shadow:0 1px 8px rgba(0,0,0,0.05);overflow:hidden;">'
+        '<div style="height:3px;background:linear-gradient(90deg,#7B61FF,#00A896);"></div>'
+        '<div style="padding:1.25rem 1.5rem;">'
+        '<div style="font-size:9px;font-weight:700;color:#7B61FF;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">Definition FGS</div>'
+        '<p style="font-size:12px;color:#6B7280;line-height:1.65;margin:0 0 14px 0;">Als First-Generation-Studierende gelten in diesem Dashboard Studierende, deren Eltern keinen Hochschulabschluss besitzen und die somit als Erste in ihrer Familie studieren.</p>'
+        '<div style="background:#F5F3FF;border-left:2px solid #7B61FF;border-radius:0 6px 6px 0;padding:9px 13px;font-size:11px;color:#5B21B6;font-weight:500;line-height:1.4;">Erste in der Familie, die studieren</div>'
+        '</div>'
+        '</div>'
+        '</div>'
+        '<div style="background:linear-gradient(135deg,#E6FAF8 0%,#F0FFF4 100%);border-radius:12px;border:0.5px solid #A7F3D0;box-shadow:0 1px 8px rgba(0,0,0,0.05);padding:1.25rem 1.5rem;margin-bottom:12px;position:relative;overflow:hidden;display:flex;gap:1.25rem;align-items:flex-start;">'
+        '<div style="position:absolute;width:130px;height:130px;background:#00A896;border-radius:50%;opacity:0.06;top:-35px;right:-25px;pointer-events:none;"></div>'
+        '<div style="flex-shrink:0;width:36px;height:36px;background:#00A896;border-radius:8px;display:flex;align-items:center;justify-content:center;">'
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
+        '</div>'
+        '<div style="flex:1;position:relative;z-index:1;">'
+        '<div style="font-size:9px;font-weight:700;color:#00A896;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">Datenschutz und Anonymisierung</div>'
+        '<p style="font-size:12px;color:#065F46;line-height:1.65;margin:0;">Die Befragung erfolgte anonym über Google Forms — es wurden keine personenbezogenen Angaben erhoben. Die Visualisierungen zeigen ausschliesslich aggregierte Ergebnisse. Bei kritischen Filterkombinationen werden keine Detailwerte angezeigt, um Rückschlüsse auf einzelne Personen zu verhindern. Freitextaussagen werden nur anonymisiert und inhaltlich bereinigt dargestellt.</p>'
+        '</div>'
+        '</div>'
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">'
+        '<div style="background:#fff;border-radius:12px;border:1px solid #E5E7EB;box-shadow:0 1px 8px rgba(0,0,0,0.05);overflow:hidden;">'
+        '<div style="height:3px;background:linear-gradient(90deg,#F2994A,#EB5757);"></div>'
+        '<div style="padding:1.25rem 1.5rem;">'
+        '<div style="font-size:9px;font-weight:700;color:#F2994A;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">Hinweise zur Interpretation</div>'
+        '<p style="font-size:12px;color:#6B7280;line-height:1.65;margin:0;">Die Ergebnisse zeigen Wahrnehmungen und Erfahrungen der befragten Studierenden. Sie ermöglichen die Identifikation von Mustern und möglichen Unterstützungsbedarfen, erlauben jedoch keine pauschalen Aussagen über alle First-Generation-Studierenden. Dargestellte Handlungshinweise sind als mögliche Ansatzpunkte für weitere Diskussionen zu verstehen.</p>'
+        '</div>'
+        '</div>'
+        '<div style="background:#fff;border-radius:12px;border:1px solid #E5E7EB;box-shadow:0 1px 8px rgba(0,0,0,0.05);overflow:hidden;">'
+        '<div style="height:3px;background:linear-gradient(90deg,#1E2A44,#2D9CDB);"></div>'
+        '<div style="padding:1.25rem 1.5rem;">'
+        '<div style="font-size:9px;font-weight:700;color:#1E2A44;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">Stand und Weiterentwicklung</div>'
+        '<p style="font-size:12px;color:#6B7280;line-height:1.65;margin:0 0 14px 0;">Datenstand: 2026. Das Dashboard ist so konzipiert, dass zukünftige Erhebungen integriert und Entwicklungen über mehrere Jahre hinweg verglichen werden können.</p>'
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;">'
+        '<span style="background:#1E2A44;color:#fff;border-radius:5px;padding:4px 10px;font-size:10px;font-weight:600;">2026</span>'
+        '<span style="background:#F5F7FB;color:#6B7280;border:0.5px solid #D1D5DB;border-radius:5px;padding:4px 10px;font-size:10px;font-weight:600;">2027 &#8594;</span>'
+        '<span style="background:#F5F7FB;color:#6B7280;border:0.5px solid #D1D5DB;border-radius:5px;padding:4px 10px;font-size:10px;font-weight:600;">2028 &#8594;</span>'
+        '</div>'
+        '</div>'
+        '</div>'
+        '</div>'
+        '</div>'
+        '</div>'
+    )
+    st.markdown(_ueber_html, unsafe_allow_html=True)
