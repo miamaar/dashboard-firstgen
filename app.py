@@ -183,7 +183,7 @@ div[data-testid="stHorizontalBlock"]:first-of-type > div:nth-child({_active_nth}
 }}
 
 /* ── DASHBOARD ── */
-.dash-wrap {{ background:#F5F7FB; padding:1.5rem 2rem 3rem 2rem; max-width:1280px; margin:0 auto; }}
+.dash-wrap {{ background:#F5F7FB; padding:0 0 2rem 0; max-width:100%; margin:0; }}
 .stTabs [data-baseweb="tab-list"] {{
     background:#FFFFFF; border-radius:10px; padding:4px 8px;
     box-shadow:0 2px 8px rgba(0,0,0,0.06); margin-bottom:1.5rem; gap:4px;
@@ -298,8 +298,6 @@ if page == "home":
 # DASHBOARD
 # ════════════════════════════════════════════════════════════════════════════
 elif page == "dashboard":
-    st.markdown('<div class="dash-wrap">', unsafe_allow_html=True)
-
     df_raw = load_data()
 
     n_total = len(df_raw)
@@ -1342,11 +1340,11 @@ elif page == "dashboard":
 elif page == "ueber":
     _ueber_html = (
         '<div class="dash-wrap">'
-        '<div style="background:#ffffff;border-radius:16px;padding:2.5rem 3rem;position:relative;overflow:hidden;margin-bottom:1.25rem;display:flex;justify-content:space-between;align-items:center;min-height:180px;border:1px solid #E5E7EB;box-shadow:0 2px 10px rgba(0,0,0,0.05);">'
+        '<div style="background:#ffffff;border-radius:16px;padding:1.5rem 2rem;position:relative;overflow:hidden;margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:flex-start;border:1px solid #E5E7EB;box-shadow:0 2px 12px rgba(0,0,0,0.07);">'
         '<div style="position:absolute;width:280px;height:280px;background:#00A896;border-radius:50%;opacity:0.07;top:-100px;right:260px;pointer-events:none;"></div>'
         '<div style="position:absolute;width:200px;height:200px;background:#2D9CDB;border-radius:50%;opacity:0.07;bottom:-60px;right:80px;pointer-events:none;"></div>'
         '<div style="position:relative;z-index:1;">'
-                '<h2 style="font-size:42px;font-weight:800;color:#1E2A44;font-style:italic;margin:0 0 10px 0;line-height:1.15;font-family:Inter,sans-serif;">&#220;ber die Daten</h2>'
+                '<h2 style="font-size:26px;font-weight:700;color:#1E2A44;margin:0 0 4px 0;line-height:1.2;font-family:Inter,sans-serif;">&#220;ber die Daten</h2>'
         '<p style="font-size:13px;color:#4B5563;margin:0;line-height:1.6;">Datengrundlage, Datenschutz und Hinweise zur Interpretation</p>'
         '</div>'
         '<div style="display:flex;align-items:center;gap:2.5rem;position:relative;z-index:1;flex-shrink:0;">'
@@ -1378,16 +1376,16 @@ elif page == "ueber":
         '<div style="background:#fff;border-radius:12px;border:1px solid #E5E7EB;box-shadow:0 1px 8px rgba(0,0,0,0.05);overflow:hidden;">'
         '<div style="height:3px;background:linear-gradient(90deg,#2D9CDB,#7B61FF);"></div>'
         '<div style="padding:1.25rem 1.5rem;">'
-        '<div style="font-size:9px;font-weight:700;color:#2D9CDB;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">Datengrundlage</div>'
-        '<p style="font-size:12px;color:#6B7280;line-height:1.65;margin:0 0 14px 0;">Die dargestellten Ergebnisse basieren auf einer Studierendenbefragung zu Bildungsbiografien, Herausforderungen, Ressourcen und Unterstützungsbedarfen von First-Generation-Studierenden am Departement Informatik der HSLU. Die Daten wurden bereinigt und ausschliesslich aggregiert visualisiert.</p>'
+        '<div style="font-size:11px;font-weight:700;color:#2D9CDB;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Datengrundlage</div>'
+        '<p style="font-size:13px;color:#374151;line-height:1.5;margin:0 0 14px 0;">Die dargestellten Ergebnisse basieren auf einer Studierendenbefragung zu Bildungsbiografien, Herausforderungen, Ressourcen und Unterstützungsbedarfen von First-Generation-Studierenden am Departement Informatik der HSLU. Die Daten wurden bereinigt und ausschliesslich aggregiert visualisiert.</p>'
         '<span style="display:inline-block;background:#EFF6FF;color:#2D9CDB;border-radius:6px;padding:4px 11px;font-size:10px;font-weight:600;">Google Forms · CSV-Export</span>'
         '</div>'
         '</div>'
         '<div style="background:#fff;border-radius:12px;border:1px solid #E5E7EB;box-shadow:0 1px 8px rgba(0,0,0,0.05);overflow:hidden;">'
         '<div style="height:3px;background:linear-gradient(90deg,#7B61FF,#00A896);"></div>'
         '<div style="padding:1.25rem 1.5rem;">'
-        '<div style="font-size:9px;font-weight:700;color:#7B61FF;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">Definition FGS</div>'
-        '<p style="font-size:12px;color:#6B7280;line-height:1.65;margin:0 0 14px 0;">Als First-Generation-Studierende gelten in diesem Dashboard Studierende, deren Eltern keinen Hochschulabschluss besitzen und die somit als Erste in ihrer Familie studieren.</p>'
+        '<div style="font-size:11px;font-weight:700;color:#7B61FF;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Definition FGS</div>'
+        '<p style="font-size:13px;color:#374151;line-height:1.5;margin:0 0 14px 0;">Als First-Generation-Studierende gelten in diesem Dashboard Studierende, deren Eltern keinen Hochschulabschluss besitzen und die somit als Erste in ihrer Familie studieren.</p>'
         '<div style="background:#F5F3FF;border-left:2px solid #7B61FF;border-radius:0 6px 6px 0;padding:9px 13px;font-size:11px;color:#5B21B6;font-weight:500;line-height:1.4;">Erste in der Familie, die studieren</div>'
         '</div>'
         '</div>'
@@ -1398,23 +1396,23 @@ elif page == "ueber":
         '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'
         '</div>'
         '<div style="flex:1;position:relative;z-index:1;">'
-        '<div style="font-size:9px;font-weight:700;color:#00A896;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">Datenschutz und Anonymisierung</div>'
-        '<p style="font-size:12px;color:#065F46;line-height:1.65;margin:0;">Die Befragung erfolgte anonym über Google Forms — es wurden keine personenbezogenen Angaben erhoben. Die Visualisierungen zeigen ausschliesslich aggregierte Ergebnisse. Bei kritischen Filterkombinationen werden keine Detailwerte angezeigt, um Rückschlüsse auf einzelne Personen zu verhindern. Freitextaussagen werden nur anonymisiert und inhaltlich bereinigt dargestellt.</p>'
+        '<div style="font-size:11px;font-weight:700;color:#00A896;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Datenschutz und Anonymisierung</div>'
+        '<p style="font-size:13px;color:#065F46;line-height:1.5;margin:0;">Die Befragung erfolgte anonym über Google Forms — es wurden keine personenbezogenen Angaben erhoben. Die Visualisierungen zeigen ausschliesslich aggregierte Ergebnisse. Bei kritischen Filterkombinationen werden keine Detailwerte angezeigt, um Rückschlüsse auf einzelne Personen zu verhindern. Freitextaussagen werden nur anonymisiert und inhaltlich bereinigt dargestellt.</p>'
         '</div>'
         '</div>'
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">'
         '<div style="background:#fff;border-radius:12px;border:1px solid #E5E7EB;box-shadow:0 1px 8px rgba(0,0,0,0.05);overflow:hidden;">'
         '<div style="height:3px;background:linear-gradient(90deg,#F2994A,#EB5757);"></div>'
         '<div style="padding:1.25rem 1.5rem;">'
-        '<div style="font-size:9px;font-weight:700;color:#F2994A;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">Hinweise zur Interpretation</div>'
-        '<p style="font-size:12px;color:#6B7280;line-height:1.65;margin:0;">Die Ergebnisse zeigen Wahrnehmungen und Erfahrungen der befragten Studierenden. Sie ermöglichen die Identifikation von Mustern und möglichen Unterstützungsbedarfen, erlauben jedoch keine pauschalen Aussagen über alle First-Generation-Studierenden. Dargestellte Handlungshinweise sind als mögliche Ansatzpunkte für weitere Diskussionen zu verstehen.</p>'
+        '<div style="font-size:11px;font-weight:700;color:#F2994A;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Hinweise zur Interpretation</div>'
+        '<p style="font-size:13px;color:#374151;line-height:1.5;margin:0;">Die Ergebnisse zeigen Wahrnehmungen und Erfahrungen der befragten Studierenden. Sie ermöglichen die Identifikation von Mustern und möglichen Unterstützungsbedarfen, erlauben jedoch keine pauschalen Aussagen über alle First-Generation-Studierenden. Dargestellte Handlungshinweise sind als mögliche Ansatzpunkte für weitere Diskussionen zu verstehen.</p>'
         '</div>'
         '</div>'
         '<div style="background:#fff;border-radius:12px;border:1px solid #E5E7EB;box-shadow:0 1px 8px rgba(0,0,0,0.05);overflow:hidden;">'
         '<div style="height:3px;background:linear-gradient(90deg,#1E2A44,#2D9CDB);"></div>'
         '<div style="padding:1.25rem 1.5rem;">'
-        '<div style="font-size:9px;font-weight:700;color:#1E2A44;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;">Stand und Weiterentwicklung</div>'
-        '<p style="font-size:12px;color:#6B7280;line-height:1.65;margin:0 0 14px 0;">Datenstand: 2026. Das Dashboard ist so konzipiert, dass zukünftige Erhebungen integriert und Entwicklungen über mehrere Jahre hinweg verglichen werden können.</p>'
+        '<div style="font-size:11px;font-weight:700;color:#1E2A44;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Stand und Weiterentwicklung</div>'
+        '<p style="font-size:13px;color:#374151;line-height:1.5;margin:0 0 14px 0;">Datenstand: 2026. Das Dashboard ist so konzipiert, dass zukünftige Erhebungen integriert und Entwicklungen über mehrere Jahre hinweg verglichen werden können.</p>'
         '<div style="display:flex;gap:6px;flex-wrap:wrap;">'
         '<span style="background:#1E2A44;color:#fff;border-radius:5px;padding:4px 10px;font-size:10px;font-weight:600;">2026</span>'
         '<span style="background:#F5F7FB;color:#6B7280;border:0.5px solid #D1D5DB;border-radius:5px;padding:4px 10px;font-size:10px;font-weight:600;">2027 &#8594;</span>'
